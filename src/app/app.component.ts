@@ -1,4 +1,14 @@
 import { Component } from '@angular/core';
+import { VisitorService } from './visitor.service';
+import {
+  trigger,
+  state,
+  style,
+  animate,
+  transition,
+  keyframes
+  // ...
+} from '@angular/animations';
 
 @Component({
   selector: 'app-root',
@@ -18,10 +28,11 @@ import { Component } from '@angular/core';
 
   <ng-template #birdObject>Many types of Birds</ng-template>
 
-  <img src="{{ beasBees }}">
+  <img [@animateMe]='state' (click)="grow()" src="{{ singleBee }}">
   <img [src]="beasBees">
   <img bind-src="beasBees">
 
+  <footer>{{ someProperty }}</footer>
   `,
   // styleUrls: ['./app.component.scss']
   styles: [`
@@ -40,7 +51,23 @@ import { Component } from '@angular/core';
     border: none;
   }
 
-  `]
+  `],
+  animations: [
+    trigger('animateMe', [
+
+      state('small', style({
+        transform: 'scale(1)',
+      })),
+      state('med', style({
+        transform: 'scale(1.2)',
+      })),
+      transition('small <=> med', animate('300ms ease-in', keyframes([
+        style({opacity: 0, transform: 'translateY(-75%)', offset: 0}),
+        style({opacity: 1, transform: 'translateY(35px)', offset: .5}),
+        style({opacity: 0, transform: 'translateY(0)', offset: 1}),
+      ]))),
+    ]),
+  ]
 
 })
 
@@ -58,6 +85,7 @@ export class AppComponent {
   flowers = ['rose', 'hydrangea', 'milkweed'];
   
   beasBees = '../assets/bees/beea_queen_worker_drone.jpeg';
+  singleBee = '../assets/bees/bee_gold.jpeg';
 
   buttonStatus = false;
 
@@ -72,5 +100,23 @@ export class AppComponent {
   }
 
   buttonClass = 'button'
+
+  state: string = 'small'
+
+  constructor(private visitorService:VisitorService){
+
+  }
+  someProperty:string = '';
+
+  ngOnInit() {
+    console.log(this.visitorService.visitors);
+
+    this.someProperty = this.visitorService.vistorTypes();
+  }
+
+
+  grow() {
+    this.state = (this.state === 'small' ? 'med' : 'small');
+  }
 
 }
